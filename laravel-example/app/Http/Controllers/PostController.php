@@ -28,7 +28,12 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //$newPost = Post::create($request->only(['title', 'content', 'status']));
+        $newPost = Post::updateOrCreate(
+            ['title' => $request->title],
+            $request->only(['title', 'content', 'status']
+    ));
+        return $this->ok("Todo melo melo caramelo", [$newPost]);
     }
 
     /**
@@ -36,7 +41,12 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $result = Post::find($id);
+        if($result) {
+            return $this->ok("todo ok, como dijo el pibe", $result);
+        } else {
+            return $this->successful("todo mal, como no dijo el pibe",[], 404);
+        }
     }
 
     /**
