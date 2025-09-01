@@ -16,10 +16,5 @@ class PostSeeder extends Seeder
     public function run(): void
     {
         Post::factory()->count(50)->create();
-        DB::table('posts')->insert([
-            'title' => Str::random(10),
-            'content' => Str::random(10).'@example.com',
-            'status' => true,
-        ]);
     }
 }
