@@ -6,20 +6,21 @@ use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Traits\ApiResponse;
 use App\Http\Requests\StorePostRequest;
+use Illuminate\Support\Facades\Storage;
 
 
 class PostController extends Controller
 {
     use ApiResponse;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        
-        //la mala practica porque tenemos model
-        //return response()->json(DB::table('posts')->get());
-        return $this->ok("todo ok, como dijo el pibe",Post::get());
+        // La mala practica porque tenemos un Model.
+        // return response()->json(DB::table("posts")->get());
+        return $this->ok("Todo ok, como dijo el Pibe", Post::get());
     }
 
     /**
@@ -28,8 +29,18 @@ class PostController extends Controller
     public function store(StorePostRequest $request)
     {
         $data = $request->validated();
+
+        if($request->hasFile('cover_image')) {
+            $data['cover_image'] = $request->file('cover_image')->store('posts', 'public');
+        }
+
         $newPost = Post::create($data);
-        return $this->ok("Todo melo melo caramelo", [$newPost]);
+
+        if(!empty($data['category_ids'])) {
+            $newPost->categories()->sync($data['category_ids']);
+        }
+
+        return $this->create("Todo melo mor", [$newPost]);
     }
 
     /**
@@ -38,19 +49,35 @@ class PostController extends Controller
     public function show(string $id)
     {
         $result = Post::find($id);
+
         if($result) {
-            return $this->ok("todo ok, como dijo el pibe", $result);
+            return $this->ok("Todo ok, como dijo el Pibe", $result);
         } else {
-            return $this->successful("todo mal, como no dijo el pibe",[], 404);
+            return $this->success("Todo mal, como NO dijo el Pibe", [], 404);
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdatePostRequest $request, post $post)
     {
-        //
+        $data = $request->validated();
+
+        if($request->hasFile('cover_image')) {
+            //BORRADO OPCIONAL
+            if($post->cover_image) {
+                Storage::disk('public')->delete($post->cover_image);
+            }
+
+            $data['cover_image'] = $request->file('cover_image')->store('posts', 'public');
+        }
+
+        $post->update($data);
+        if(array_key_exists('category_ids', $data)) {
+            $post->categories()->sync($data['category:_ids'] ?? [] );
+        }
+        return $this->ok("Todo melo melo meloso", [$post]);
     }
 
     /**
@@ -58,6 +85,7 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $post->delete();
+        return $this->ok("eliminado melo melo meloso", [$post]);
     }
 }

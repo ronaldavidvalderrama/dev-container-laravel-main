@@ -15,4 +15,8 @@ trait ApiResponse{
     protected function ok($message, $data = null) {
         return $this->successful($message, $data, 200);
     }
+
+    protected function create($message, $data = null) {
+        return $this->successful($message, $data, 201);
+    }
 }
