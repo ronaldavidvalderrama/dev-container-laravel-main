@@ -2,90 +2,95 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
+use App\Http\Resources\PostResource;
 use App\Models\Post;
 use App\Traits\ApiResponse;
-use App\Http\Requests\StorePostRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
 
 class PostController extends Controller
 {
     use ApiResponse;
-
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        // La mala practica porque tenemos un Model.
-        // return response()->json(DB::table("posts")->get());
-        return $this->ok("Todo ok, como dijo el Pibe", Post::get());
+        $posts = Post::with('categories')->get();
+
+        return $this->successful(PostResource::collection($posts));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePostRequest $request)
+    public function store(StorePostRequest $request): JsonResponse
     {
         $data = $request->validated();
 
-        if($request->hasFile('cover_image')) {
+        if ($request->hasFile('cover_image')) {
             $data['cover_image'] = $request->file('cover_image')->store('posts', 'public');
         }
 
         $newPost = Post::create($data);
 
-        if(!empty($data['category_ids'])) {
+        if (!empty($data['category_ids'])) {
             $newPost->categories()->sync($data['category_ids']);
         }
 
-        return $this->create("Todo melo mor", [$newPost]);
+        return $this->successful("Todo melo mor", [$newPost], 'Post creado correctamente', 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
+        //$result = Post::findOrFail($id);
         $result = Post::find($id);
-
-        if($result) {
-            return $this->ok("Todo ok, como dijo el Pibe", $result);
+        if ($result) {
+            return $this->successful("Todo ok, como dijo el Pibe", $result);
         } else {
-            return $this->success("Todo mal, como NO dijo el Pibe", [], 404);
+            return $this->error("Todo mal, como NO dijo el Pibe", [], 404, ['id' => 'No se encontro el recurso con el id']);
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePostRequest $request, post $post)
+    public function update(UpdatePostRequest $request, Post $post): JsonResponse
     {
+        Log::debug('all:', $request->all());
+        Log::debug('files:', array_keys($request->allFiles()));
         $data = $request->validated();
-
-        if($request->hasFile('cover_image')) {
-            //BORRADO OPCIONAL
-            if($post->cover_image) {
-                Storage::disk('public')->delete($post->cover_image);
-            }
-
-            $data['cover_image'] = $request->file('cover_image')->store('posts', 'public');
+        if ($request->hasFile('cover_image')) {
         }
 
         $post->update($data);
-        if(array_key_exists('category_ids', $data)) {
-            $post->categories()->sync($data['category:_ids'] ?? [] );
+
+        if (array_key_exists('category_ids', $data)) {
         }
-        return $this->ok("Todo melo melo meloso", [$post]);
+
+        return $this->successful(new PostResource($post));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Post $post): JsonResponse
     {
-        $post->delete();
-        return $this->ok("eliminado melo melo meloso", [$post]);
+        $post->delete(); //Soft delete
+        //return response()->noContent();
+        return $this->successful(null, 'post eliminado');
+    }
+
+    public function restore(int $id): JsonResponse 
+    {
+        $post = Post::onlyTrashed()->findOrFail($id);
+        $post->restore();
+        return $this->successful($post, 'Post restaurado correctamente');
     }
 }
