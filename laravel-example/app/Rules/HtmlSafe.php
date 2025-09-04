@@ -14,7 +14,7 @@ class HtmlSafe implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if(\preg_match('/<\s*script\b/i', (string) $value)) {
+        if (preg_match('/<\s*script\b/i', (string) $value)) {
             $fail('El campo :attribute contiene etiquetas no permitidas');
         }
     }

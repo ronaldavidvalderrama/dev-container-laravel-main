@@ -15,22 +15,21 @@ class PostResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $post->id,
-            'title' => $post->title,
-            'content' => $post->content,
-            'slug' => $post->slug,
-            'status' => $post->status,
-            'cover_image' => $post->cover_image,
-            'categories' => $post->categories->map(function ($category) {
+            'id' => $this->id,
+            'title' => $this->title,
+            'content' => $this->content,
+            'slug' => $this->slug,
+            'status' => $this->status,
+            'cover_image' => $this->cover_image,
+            'categories' => $this->categories->map(function ($category) {
                 return [
                     'id' => $category->id,
                     'name' => $category->name,
                 ];
             }),
-            'tags' => $post->tags,
-            'meta' => $post->meta,
-            'published_at' => $post->published_at,
-
+            'tags' => $this->tags,
+            'meta' => $this->meta,
+            'published_at' => $this->published_at,
         ];
     }
 }
