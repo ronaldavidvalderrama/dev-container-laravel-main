@@ -6,12 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\passport\HasApiTokens;
+use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -48,13 +48,14 @@ class User extends Authenticatable
     }
 
 
-    public function roles() 
+    public function roles()
     {
         return $this->belongsToMany(Role::class, 'role_user')->withTimestamps();
     }
 
-    public function hasRole(string|array $roles) : bool {
+    public function hasRole(string|array $roles): bool
+    {
         $names = is_array($roles) ? $roles : [$roles];
-        return $this->roles()->whereIn('name',$names)->exists();
+        return $this->roles()->whereIn('name', $names)->exists();
     }
 }

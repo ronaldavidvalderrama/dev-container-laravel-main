@@ -1,9 +1,6 @@
-
 {
-  "name": "Laravel 11 Dev",
-  "dockerComposeFile": [
-    "../docker-compose.yml"
-  ],
+  "name": "Laravel 11 Dev 2",
+  "dockerComposeFile": ["../docker-compose.yml"],
   "service": "app",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "features": {
@@ -19,38 +16,40 @@
     "vscode": {
       "extensions": [
         "bmewburn.vscode-intelephense-client",
-        "xdebug.php-pack",
-        "MehediDracula.php-namespace-resolver",
-        "junstyle.php-cs-fixer",
         "onecentlin.laravel-blade",
-        "amiralizadeh9480.laravel-extra-intellisense",
-        "mikestead.dotenv",
+        "MehediDracula.php-namespace-resolver",
         "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint",
         "vivaxy.vscode-conventional-commits",
-				"cweijan.vscode-mysql-client2"
+        "amiralizadeh9480.laravel-extra-intellisense",
+        "cweijan.vscode-mysql-client2"
       ],
       "settings": {
         "terminal.integrated.shell.linux": "/bin/bash",
+        "php.validate.executablePath": "/usr/local/bin/php",
         "editor.formatOnSave": true,
-        "intelephense.files.maxSize": 5000000,
         "php.validate.enable": false,
-        "php.executablePath": "/usr/local/bin/php",
         "php.suggest.basic": false,
         "files.exclude": {
-          "**/vendor": true,
           "**/node_modules": true
         },
         "search.useIgnoreFiles": false
       }
     }
   },
-  "forwardPorts": [8001, 8025, 6379, 3307],
+  "forwardPorts": [8000, 8025, 6379, 3306],
   "portsAttributes": {
-    "8001": { "label": "Laravel" },
-    "8025": { "label": "Mailpit UI" },
-    "6379": { "label": "Redis" },
-    "3307": { "label": "MySQL" }
+    "8000": {
+      "label": "Laravel"
+    },
+    "8025": {
+      "label": "Mailpit UI"
+    },
+    "6379": {
+      "label": "Redis"
+    },
+    "3306": {
+      "label": "MySQL"
+    }
   },
   "remoteUser": "vscode",
   "containerUser": "vscode",

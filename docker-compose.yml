@@ -5,17 +5,21 @@ services:
       dockerfile: .devcontainer/Dockerfile
     container_name: laravel11-app
     volumes:
-      - .:/workspaces/${COMPOSE_PROJECT_NAME:-laravel11}
-    working_dir: /workspace
+      - .:/workspaces/${localWorkspaceFolderBasename}:delegated
+    working_dir: /workspaces/${localWorkspaceFolderBasename}
     command: bash -lc "tail -f /dev/null"
     environment:
-      - TZ=UTC
+      - TZ=America/Bogota
+      - XDEBUG_MODE=off
     ports:
       - "8001:8000"
     depends_on:
-      - db
-      - redis
-      - mailpit
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      mailpit:
+        condition: service_started
 
   db:
     image: mysql:8.4.3
@@ -26,6 +30,16 @@ services:
       MYSQL_DATABASE: laravel
       MYSQL_USER: laravel
       MYSQL_PASSWORD: admin
+      TZ: America/Bogota
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -u$$MYSQL_USER -p$$MYSQL_PASSWORD -h 127.0.0.1 --silent",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     volumes:
       - dbdata-laravel11:/var/lib/mysql
     ports:
@@ -34,6 +48,7 @@ services:
   redis:
     image: redis:7
     container_name: laravel11-redis
+    command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6379:6379"
 

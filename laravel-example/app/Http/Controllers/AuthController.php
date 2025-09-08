@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\models\User;
+use App\Models\User;
 use App\Models\Role;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -13,14 +13,14 @@ class AuthController extends Controller
 {
     use ApiResponse;
 
-    function login(Request $request) 
+    function login(Request $request)
     {
         $data = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string|min:8',
         ]);
 
-        if(!Auth::attempt($request->only('email', 'password'))) {
+        if (!Auth::attempt($request->only('email', 'password'))) {
             return $this->error('Credenciales invalidas', 401);
         }
 
@@ -40,7 +40,7 @@ class AuthController extends Controller
         ]);
     }
 
-    function signup(Request $request) 
+    function signup(Request $request)
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
@@ -49,24 +49,27 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'name' =>$data['name'],
+            'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']), 
+            'password' => Hash::make($data['password']),
         ]);
 
         $defaultRole = Role::where('name', 'viewer')->first();
-        if($defaultRole) {
-            $user->roles()->syncWithoutDetaching([$defaultRole->id]);
+        if ($defaultRole) {
+            $user->roles()->sync([$defaultRole->id]);
         }
-        return $this->success($user->load('roles', "Usuario creado correctamente", 201));
+        $user->load('roles');
+        return $this->success($user, "Usuario creado correctamente", 201);
     }
 
-    function me(Request $request) {
+    function me(Request $request)
+    {
         return $this->success("Hello camper!");
     }
 
 
-    function logout(Request $request) {
+    function logout(Request $request)
+    {
         return $this->success("Hello camper!");
     }
 }
