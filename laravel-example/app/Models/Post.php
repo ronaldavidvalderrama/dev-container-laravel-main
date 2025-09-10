@@ -10,7 +10,6 @@ use App\Models\Category;
 class Post extends Model
 {
     use HasFactory, SoftDeletes;
-
     protected $table = "posts";
 
     protected $fillable = [
@@ -21,14 +20,21 @@ class Post extends Model
         'published_at',
         'cover_image',
         'tags',
-        'meta'
+        'meta',
+        'user_id'
     ];
 
     protected $casts = [
         'pubished_at' => 'datetime',
         'tags' => 'array',
-        'meta' => 'array'
+        'meta' => 'array',
+        'deleted_at' => 'deletime'
     ];
+
+    public function user() 
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function categories() {
         // Tabla pivot post_category
