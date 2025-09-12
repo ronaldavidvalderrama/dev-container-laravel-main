@@ -1,4 +1,4 @@
-{
+cker container prun{
   "name": "Laravel 11 Dev 2",
   "dockerComposeFile": ["../docker-compose.yml"],
   "service": "app",
